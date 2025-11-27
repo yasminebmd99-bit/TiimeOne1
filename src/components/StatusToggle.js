@@ -16,7 +16,9 @@ export class StatusToggle {
             'en cours': 'var(--color-warning)',
             'terminé': 'var(--color-success)',
             'En cours': 'var(--color-warning)',
-            'Terminé': 'var(--color-success)'
+            'Terminé': 'var(--color-success)',
+            'scrapé': 'var(--color-accent-primary)',
+            'Scrapé': 'var(--color-accent-primary)'
         };
         return colors[status] || 'var(--color-text-secondary)';
     }

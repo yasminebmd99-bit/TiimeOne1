@@ -9,17 +9,17 @@ import { router } from '../router.js';
  * Page détail d'un projet
  */
 export async function ProjectPage(params) {
-    const projectId = params.projectName;
-    const project = config.projects.find(p => p.id === projectId);
+  const projectId = params.projectName;
+  const project = config.projects.find(p => p.id === projectId);
 
-    if (!project) {
-        router.show404();
-        return;
-    }
+  if (!project) {
+    router.show404();
+    return;
+  }
 
-    const app = document.getElementById('app');
+  const app = document.getElementById('app');
 
-    app.innerHTML = `
+  app.innerHTML = `
     <div class="container" style="padding: var(--spacing-xl) var(--spacing-lg);">
       <div style="margin-bottom: var(--spacing-xl);">
         <a href="/" data-link class="btn btn-ghost" style="margin-bottom: var(--spacing-lg);">
@@ -63,27 +63,27 @@ export async function ProjectPage(params) {
     </div>
   `;
 
-    // Charger et afficher les codes NAF
-    await loadNAFCodes(projectId);
+  // Charger et afficher les codes NAF
+  await loadNAFCodes(projectId);
 
-    // Bouton ajouter code NAF
-    document.getElementById('add-naf-btn').addEventListener('click', () => {
-        showAddNAFModal(projectId);
-    });
+  // Bouton ajouter code NAF
+  document.getElementById('add-naf-btn').addEventListener('click', () => {
+    showAddNAFModal(projectId);
+  });
 }
 
 async function loadNAFCodes(projectId) {
-    const nafCodes = await getNAFCodes(projectId);
-    const container = document.getElementById('naf-table-container');
+  const nafCodes = await getNAFCodes(projectId, 'project');
+  const container = document.getElementById('naf-table-container');
 
-    const table = new NAFTable(nafCodes, () => loadNAFCodes(projectId));
-    container.innerHTML = '';
-    container.appendChild(table.render());
+  const table = new NAFTable(nafCodes, () => loadNAFCodes(projectId));
+  container.innerHTML = '';
+  container.appendChild(table.render());
 }
 
 function showAddNAFModal(projectId) {
-    const form = document.createElement('form');
-    form.innerHTML = `
+  const form = document.createElement('form');
+  form.innerHTML = `
     <div class="form-group">
       <label class="form-label">Code NAF</label>
       <input type="text" name="code" class="form-input" placeholder="Ex: 62.01Z" required>
@@ -97,40 +97,41 @@ function showAddNAFModal(projectId) {
     <div id="department-selector-container"></div>
   `;
 
-    const deptSelector = new DepartmentSelector([]);
-    form.querySelector('#department-selector-container').appendChild(deptSelector.render());
+  const deptSelector = new DepartmentSelector([]);
+  form.querySelector('#department-selector-container').appendChild(deptSelector.render());
 
-    const modal = new Modal('Ajouter un code NAF', form, {
-        confirmText: 'Ajouter',
-        cancelText: 'Annuler',
-        onConfirm: async () => {
-            const formData = new FormData(form);
-            const code = formData.get('code');
-            const query = formData.get('query');
-            const departments = deptSelector.getSelectedDepartments();
+  const modal = new Modal('Ajouter un code NAF', form, {
+    confirmText: 'Ajouter',
+    cancelText: 'Annuler',
+    onConfirm: async () => {
+      const formData = new FormData(form);
+      const code = formData.get('code');
+      const query = formData.get('query');
+      const departments = deptSelector.getSelectedDepartments();
 
-            if (!code || !query) {
-                alert('Veuillez remplir tous les champs');
-                return;
-            }
+      if (!code || !query) {
+        alert('Veuillez remplir tous les champs');
+        return;
+      }
 
-            try {
-                await addNAFCode({
-                    project_id: projectId,
-                    code: code,
-                    query: query,
-                    departments: departments,
-                    status: 'non injecté'
-                });
+      try {
+        await addNAFCode({
+          project_id: projectId,
+          code: code,
+          query: query,
+          departments: departments,
+          status: 'non injecté',
+          type: 'project'
+        });
 
-                modal.close();
-                await loadNAFCodes(projectId);
-            } catch (error) {
-                alert('Erreur lors de l\'ajout du code NAF');
-                console.error(error);
-            }
-        }
-    });
+        modal.close();
+        await loadNAFCodes(projectId);
+      } catch (error) {
+        alert('Erreur lors de l\'ajout du code NAF');
+        console.error(error);
+      }
+    }
+  });
 
-    modal.open();
+  modal.open();
 }

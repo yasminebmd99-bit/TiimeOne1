@@ -114,6 +114,6 @@ export function getMissingDepartments(selectedDepartments = []) {
 export function getDepartmentNames(codes = []) {
     return codes.map(code => {
         const dept = DEPARTMENTS.find(d => d.code === code);
-        return dept ? dept.name : code;
+        return dept ? `${code} - ${dept.name}` : code;
     });
 }

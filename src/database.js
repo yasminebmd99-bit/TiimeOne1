@@ -21,15 +21,18 @@ export function getSupabase() {
 // ==================== OPÉRATIONS CRUD ====================
 
 /**
- * Récupère tous les codes NAF pour un projet
+ * Récupère les codes NAF d'un projet
+ * @param {string} projectId - ID du projet
+ * @param {string} type - Type de code ('project' ou 'scraper')
  */
-export async function getNAFCodes(projectId) {
+export async function getNAFCodes(projectId, type = 'project') {
     if (!supabase) return [];
 
     const { data, error } = await supabase
         .from('naf_codes')
         .select('*')
         .eq('project_id', projectId)
+        .eq('type', type)
         .order('created_at', { ascending: false });
 
     if (error) {
@@ -46,9 +49,15 @@ export async function getNAFCodes(projectId) {
 export async function addNAFCode(nafCode) {
     if (!supabase) return null;
 
+    // S'assurer que le type est défini (par défaut 'project')
+    const codeToAdd = {
+        ...nafCode,
+        type: nafCode.type || 'project'
+    };
+
     const { data, error } = await supabase
         .from('naf_codes')
-        .insert([nafCode])
+        .insert([codeToAdd])
         .select()
         .single();
 
@@ -61,7 +70,7 @@ export async function addNAFCode(nafCode) {
 }
 
 /**
- * Met à jour un code NAF existant
+ * Met à jour un code NAF complet
  */
 export async function updateNAFCode(id, updates) {
     if (!supabase) return null;
