@@ -1,9 +1,9 @@
 // Configuration de l'application
 export const config = {
-    // Configuration Supabase - À REMPLIR AVEC VOS IDENTIFIANTS
+    // Configuration Supabase - Utilise les variables d'environnement en production
     supabase: {
-        url: 'https://vpshksqponatwxjlnahh.supabase.co', // Ex: https://xxxxx.supabase.co
-        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwc2hrc3Fwb25hdHd4amxuYWhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyNDgyNzUsImV4cCI6MjA3OTgyNDI3NX0.bPJy_S5nsN8jCc2sWDxOM5aTAfv6gnSG0mzmL43nA_k'
+        url: import.meta.env.VITE_SUPABASE_URL || 'https://vpshksqponatwxjlnahh.supabase.co',
+        anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwc2hrc3Fwb25hdHd4amxuYWhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyNDgyNzUsImV4cCI6MjA3OTgyNDI3NX0.bPJy_S5nsN8jCc2sWDxOM5aTAfv6gnSG0mzmL43nA_k'
     },
 
     // Liste des projets
