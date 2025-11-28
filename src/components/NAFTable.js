@@ -8,11 +8,12 @@ import { DepartmentSelector } from './DepartmentSelector.js';
  * Composant tableau de codes NAF
  */
 export class NAFTable {
-  constructor(nafCodes, onUpdate, allowedStatuses = ['non injecté', 'injecté', 'en cours', 'terminé'], statusField = 'status_project') {
+  constructor(nafCodes, onUpdate, allowedStatuses = ['non injecté', 'injecté', 'en cours', 'terminé'], statusField = 'status_project', projectId = null) {
     this.nafCodes = nafCodes;
     this.onUpdate = onUpdate;
     this.allowedStatuses = allowedStatuses;
     this.statusField = statusField; // 'status_project' ou 'status_scraper'
+    this.projectId = projectId; // Pour filtrer les départements disponibles
     this.element = null;
   }
 
@@ -57,7 +58,7 @@ export class NAFTable {
     this.nafCodes.forEach(nafCode => {
       const row = document.createElement('tr');
 
-      const missingDepts = getMissingDepartments(nafCode.departments || []);
+      const missingDepts = getMissingDepartments(nafCode.departments || [], this.projectId);
       const deptNames = getDepartmentNames(nafCode.departments || []);
       const missingDeptNames = getDepartmentNames(missingDepts);
 

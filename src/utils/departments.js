@@ -99,10 +99,11 @@ export const DEPARTMENTS = [
 /**
  * Calcule les départements manquants
  * @param {string[]} selectedDepartments - Codes des départements sélectionnés
+ * @param {string} projectId - ID du projet (optionnel)
  * @returns {string[]} Codes des départements manquants
  */
-export function getMissingDepartments(selectedDepartments = []) {
-    const allCodes = DEPARTMENTS.map(d => d.code);
+export function getMissingDepartments(selectedDepartments = [], projectId = null) {
+    const allCodes = getAvailableDepartments(projectId).map(d => d.code);
     return allCodes.filter(code => !selectedDepartments.includes(code));
 }
 
@@ -116,4 +117,21 @@ export function getDepartmentNames(codes = []) {
         const dept = DEPARTMENTS.find(d => d.code === code);
         return dept ? `${code} - ${dept.name}` : code;
     });
+}
+
+/**
+ * Obtient la liste des départements disponibles pour un projet
+ * @param {string} projectId - ID du projet
+ * @returns {Array} Liste des départements disponibles
+ */
+export function getAvailableDepartments(projectId = null) {
+    // Configuration spécifique pour le projet Staffy
+    const STAFFY_DEPARTMENTS = ['13', '14', '27', '30', '33', '35', '40', '59', '62', '64', '66', '67', '68', '69', '75', '77', '78', '80', '95'];
+
+    if (projectId === 'staffy') {
+        return DEPARTMENTS.filter(d => STAFFY_DEPARTMENTS.includes(d.code));
+    }
+
+    // Pour tous les autres projets, retourner tous les départements
+    return DEPARTMENTS;
 }

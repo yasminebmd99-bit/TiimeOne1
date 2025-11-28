@@ -1,21 +1,22 @@
-import { DEPARTMENTS } from '../utils/departments.js';
+import { DEPARTMENTS, getAvailableDepartments } from '../utils/departments.js';
 
 /**
  * Composant sélecteur de départements multi-sélection
  */
 export class DepartmentSelector {
-    constructor(selectedDepartments = []) {
-        this.selectedDepartments = new Set(selectedDepartments);
-        this.element = null;
-        this.isOpen = false;
-    }
+  constructor(selectedDepartments = [], projectId = null) {
+    this.selectedDepartments = new Set(selectedDepartments);
+    this.projectId = projectId;
+    this.element = null;
+    this.isOpen = false;
+  }
 
-    render() {
-        const container = document.createElement('div');
-        container.className = 'form-group';
-        container.style.position = 'relative';
+  render() {
+    const container = document.createElement('div');
+    container.className = 'form-group';
+    container.style.position = 'relative';
 
-        container.innerHTML = `
+    container.innerHTML = `
       <label class="form-label">Départements</label>
       <div class="department-selector">
         <button type="button" class="form-input" style="
@@ -56,7 +57,7 @@ export class DepartmentSelector {
             </button>
           </div>
           <div class="department-list">
-            ${DEPARTMENTS.map(dept => `
+            ${getAvailableDepartments(this.projectId).map(dept => `
               <label style="
                 display: flex;
                 align-items: center;
@@ -80,73 +81,73 @@ export class DepartmentSelector {
       </div>
     `;
 
-        this.element = container;
-        this.setupEventListeners();
+    this.element = container;
+    this.setupEventListeners();
 
-        return container;
-    }
+    return container;
+  }
 
-    setupEventListeners() {
-        const button = this.element.querySelector('button[type="button"]');
-        const dropdown = this.element.querySelector('.department-dropdown');
-        const checkboxes = this.element.querySelectorAll('input[type="checkbox"]');
-        const selectAllBtn = this.element.querySelector('[data-select-all]');
-        const deselectAllBtn = this.element.querySelector('[data-deselect-all]');
+  setupEventListeners() {
+    const button = this.element.querySelector('button[type="button"]');
+    const dropdown = this.element.querySelector('.department-dropdown');
+    const checkboxes = this.element.querySelectorAll('input[type="checkbox"]');
+    const selectAllBtn = this.element.querySelector('[data-select-all]');
+    const deselectAllBtn = this.element.querySelector('[data-deselect-all]');
 
-        // Toggle dropdown
-        button.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.isOpen = !this.isOpen;
-            dropdown.style.display = this.isOpen ? 'block' : 'none';
-        });
+    // Toggle dropdown
+    button.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.isOpen = !this.isOpen;
+      dropdown.style.display = this.isOpen ? 'block' : 'none';
+    });
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!this.element.contains(e.target)) {
-                this.isOpen = false;
-                dropdown.style.display = 'none';
-            }
-        });
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!this.element.contains(e.target)) {
+        this.isOpen = false;
+        dropdown.style.display = 'none';
+      }
+    });
 
-        // Handle checkbox changes
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    this.selectedDepartments.add(e.target.value);
-                } else {
-                    this.selectedDepartments.delete(e.target.value);
-                }
-                this.updateSelectedCount();
-            });
-        });
+    // Handle checkbox changes
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+        if (e.target.checked) {
+          this.selectedDepartments.add(e.target.value);
+        } else {
+          this.selectedDepartments.delete(e.target.value);
+        }
+        this.updateSelectedCount();
+      });
+    });
 
-        // Select all
-        selectAllBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            checkboxes.forEach(cb => {
-                cb.checked = true;
-                this.selectedDepartments.add(cb.value);
-            });
-            this.updateSelectedCount();
-        });
+    // Select all
+    selectAllBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      checkboxes.forEach(cb => {
+        cb.checked = true;
+        this.selectedDepartments.add(cb.value);
+      });
+      this.updateSelectedCount();
+    });
 
-        // Deselect all
-        deselectAllBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            checkboxes.forEach(cb => {
-                cb.checked = false;
-                this.selectedDepartments.delete(cb.value);
-            });
-            this.updateSelectedCount();
-        });
-    }
+    // Deselect all
+    deselectAllBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      checkboxes.forEach(cb => {
+        cb.checked = false;
+        this.selectedDepartments.delete(cb.value);
+      });
+      this.updateSelectedCount();
+    });
+  }
 
-    updateSelectedCount() {
-        const countSpan = this.element.querySelector('.selected-count');
-        countSpan.textContent = `${this.selectedDepartments.size} département(s) sélectionné(s)`;
-    }
+  updateSelectedCount() {
+    const countSpan = this.element.querySelector('.selected-count');
+    countSpan.textContent = `${this.selectedDepartments.size} département(s) sélectionné(s)`;
+  }
 
-    getSelectedDepartments() {
-        return Array.from(this.selectedDepartments);
-    }
+  getSelectedDepartments() {
+    return Array.from(this.selectedDepartments);
+  }
 }
