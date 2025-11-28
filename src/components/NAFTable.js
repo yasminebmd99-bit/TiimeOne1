@@ -8,11 +8,12 @@ import { DepartmentSelector } from './DepartmentSelector.js';
  * Composant tableau de codes NAF
  */
 export class NAFTable {
-  constructor(nafCodes, onUpdate, allowedStatuses = ['non injecté', 'injecté', 'en cours', 'terminé'], statusField = 'status_project', projectId = null) {
+  constructor(nafCodes, onUpdate, allowedStatuses = ['non injecté', 'injecté', 'en cours', 'terminé'], statusField = 'status_project', projectId = null, departmentsField = 'departments_project') {
     this.nafCodes = nafCodes;
     this.onUpdate = onUpdate;
     this.allowedStatuses = allowedStatuses;
     this.statusField = statusField; // 'status_project' ou 'status_scraper'
+    this.departmentsField = departmentsField; // 'departments_project' ou 'departments_scraper'
     this.projectId = projectId; // Pour filtrer les départements disponibles
     this.element = null;
   }
@@ -58,8 +59,8 @@ export class NAFTable {
     this.nafCodes.forEach(nafCode => {
       const row = document.createElement('tr');
 
-      const missingDepts = getMissingDepartments(nafCode.departments || [], this.projectId);
-      const deptNames = getDepartmentNames(nafCode.departments || []);
+      const missingDepts = getMissingDepartments(nafCode[this.departmentsField] || [], this.projectId);
+      const deptNames = getDepartmentNames(nafCode[this.departmentsField] || []);
       const missingDeptNames = getDepartmentNames(missingDepts);
 
       // Code NAF
@@ -228,7 +229,7 @@ export class NAFTable {
       <div id="edit-department-selector-container"></div>
     `;
 
-    const deptSelector = new DepartmentSelector(nafCode.departments || []);
+    const deptSelector = new DepartmentSelector(nafCode[this.departmentsField] || [], this.projectId);
     form.querySelector('#edit-department-selector-container').appendChild(deptSelector.render());
 
     const modal = new Modal('Modifier le code NAF', form, {
@@ -249,7 +250,7 @@ export class NAFTable {
           await updateNAFCode(nafCode.id, {
             code,
             query,
-            departments
+            [this.departmentsField]: departments
           });
           modal.close();
           if (this.onUpdate) this.onUpdate();
