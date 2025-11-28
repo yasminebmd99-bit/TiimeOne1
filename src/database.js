@@ -42,6 +42,39 @@ export async function getNAFCodes(projectId) {
 }
 
 /**
+ * Recherche des codes NAF à travers tous les projets
+ * @param {string} codeQuery - Recherche par code NAF
+ * @param {string} queryText - Recherche par requête
+ */
+export async function searchNAFCodes(codeQuery = '', queryText = '') {
+    if (!supabase) return [];
+
+    let query = supabase
+        .from('naf_codes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    // Filtrer par code NAF si fourni
+    if (codeQuery) {
+        query = query.ilike('code', `%${codeQuery}%`);
+    }
+
+    // Filtrer par requête si fourni
+    if (queryText) {
+        query = query.ilike('query', `%${queryText}%`);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+        console.error('Erreur lors de la recherche des codes NAF:', error);
+        return [];
+    }
+
+    return data || [];
+}
+
+/**
  * Ajoute un nouveau code NAF
  */
 export async function addNAFCode(nafCode) {
