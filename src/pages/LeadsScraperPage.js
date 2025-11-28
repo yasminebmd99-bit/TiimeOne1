@@ -68,10 +68,15 @@ export async function LeadsScraperPage(params) {
 }
 
 async function loadNAFCodes(projectId) {
-  const nafCodes = await getNAFCodes(projectId, 'scraper');
+  const nafCodes = await getNAFCodes(projectId);
   const container = document.getElementById('naf-table-container');
 
-  const table = new NAFTable(nafCodes, () => loadNAFCodes(projectId), ['scrapé', 'en cours']);
+  const table = new NAFTable(
+    nafCodes,
+    () => loadNAFCodes(projectId),
+    ['scrapé', 'en cours'],
+    'status_scraper'
+  );
   container.innerHTML = '';
   container.appendChild(table.render());
 }
@@ -115,8 +120,8 @@ function showAddNAFModal(projectId) {
           code: code,
           query: query,
           departments: departments,
-          status: 'scrapé',
-          type: 'scraper'
+          status_project: 'non injecté',
+          status_scraper: 'scrapé'
         });
 
         modal.close();

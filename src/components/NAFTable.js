@@ -8,10 +8,11 @@ import { DepartmentSelector } from './DepartmentSelector.js';
  * Composant tableau de codes NAF
  */
 export class NAFTable {
-  constructor(nafCodes, onUpdate, allowedStatuses = ['non injecté', 'injecté', 'en cours', 'terminé']) {
+  constructor(nafCodes, onUpdate, allowedStatuses = ['non injecté', 'injecté', 'en cours', 'terminé'], statusField = 'status_project') {
     this.nafCodes = nafCodes;
     this.onUpdate = onUpdate;
     this.allowedStatuses = allowedStatuses;
+    this.statusField = statusField; // 'status_project' ou 'status_scraper'
     this.element = null;
   }
 
@@ -125,11 +126,11 @@ export class NAFTable {
       // Statut
       const statusCell = document.createElement('td');
       const statusToggle = new StatusToggle(
-        nafCode.status || this.allowedStatuses[0],
+        nafCode[this.statusField] || this.allowedStatuses[0],
         this.allowedStatuses,
         async (newStatus) => {
           try {
-            await updateNAFStatus(nafCode.id, newStatus);
+            await updateNAFCode(nafCode.id, { [this.statusField]: newStatus });
             if (this.onUpdate) this.onUpdate();
           } catch (error) {
             alert('Erreur lors de la mise à jour du statut');

@@ -73,10 +73,15 @@ export async function ProjectPage(params) {
 }
 
 async function loadNAFCodes(projectId) {
-  const nafCodes = await getNAFCodes(projectId, 'project');
+  const nafCodes = await getNAFCodes(projectId);
   const container = document.getElementById('naf-table-container');
 
-  const table = new NAFTable(nafCodes, () => loadNAFCodes(projectId));
+  const table = new NAFTable(
+    nafCodes,
+    () => loadNAFCodes(projectId),
+    ['non injecté', 'injecté', 'en cours', 'terminé'],
+    'status_project'
+  );
   container.innerHTML = '';
   container.appendChild(table.render());
 }
@@ -120,8 +125,8 @@ function showAddNAFModal(projectId) {
           code: code,
           query: query,
           departments: departments,
-          status: 'non injecté',
-          type: 'project'
+          status_project: 'non injecté',
+          status_scraper: 'scrapé'
         });
 
         modal.close();
