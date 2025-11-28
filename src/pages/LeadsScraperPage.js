@@ -74,7 +74,7 @@ async function loadNAFCodes(projectId) {
   const table = new NAFTable(
     nafCodes,
     () => loadNAFCodes(projectId),
-    ['scrapé', 'en cours'],
+    ['scrapé', 'en cours', 'terminé'],
     'status_scraper',
     projectId,
     'departments_scraper'
