@@ -8,8 +8,8 @@ export function HomePage() {
   const app = document.getElementById('app');
 
   app.innerHTML = `
-    <div class="container" style="padding: var(--spacing-3xl) var(--spacing-lg);">
-      <header style="text-align: center; margin-bottom: var(--spacing-3xl);">
+    <div class="container" style="padding: var(--spacing-lg);">
+      <header style="text-align: center; margin-bottom: var(--spacing-lg);">
         <h1 class="gradient-text animate-fade-in" style="
           font-size: var(--font-size-4xl);
           font-weight: 800;
@@ -30,7 +30,7 @@ export function HomePage() {
       <!-- Filtre de recherche -->
       <div style="
         max-width: 800px;
-        margin: 0 auto var(--spacing-3xl);
+        margin: 0 auto var(--spacing-lg);
         padding: var(--spacing-lg);
         background: var(--color-bg-secondary);
         border-radius: var(--radius-lg);
