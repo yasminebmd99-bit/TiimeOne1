@@ -3,6 +3,7 @@ import { StatusToggle } from './StatusToggle.js';
 import { updateNAFStatus, deleteNAFCode, updateNAFCode } from '../database.js';
 import { Modal } from './Modal.js';
 import { DepartmentSelector } from './DepartmentSelector.js';
+import { config } from '../config.js';
 
 /**
  * Composant tableau de codes NAF
@@ -163,6 +164,21 @@ export class NAFTable {
       editBtn.onclick = () => this.showEditModal(nafCode);
       actionsCell.appendChild(editBtn);
 
+      // Move Button
+      const moveBtn = document.createElement('button');
+      moveBtn.className = 'btn btn-ghost';
+      moveBtn.style.padding = '0.5rem';
+      moveBtn.title = 'Déplacer vers un autre projet';
+      moveBtn.innerHTML = `
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+          <polyline points="16 7 12 3 8 7"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+      `;
+      moveBtn.onclick = () => this.showMoveModal(nafCode);
+      actionsCell.appendChild(moveBtn);
+
       // Delete Button
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'btn btn-ghost';
@@ -256,6 +272,65 @@ export class NAFTable {
           if (this.onUpdate) this.onUpdate();
         } catch (error) {
           alert('Erreur lors de la modification');
+          console.error(error);
+        }
+      }
+    });
+
+    modal.open();
+  }
+
+  showMoveModal(nafCode) {
+    const form = document.createElement('form');
+    form.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Déplacer vers le projet</label>
+        <select name="target_project" class="form-input" required>
+          <option value="">-- Sélectionnez un projet --</option>
+          ${config.projects.map(p => `
+            <option value="${p.id}" ${p.id === this.projectId ? 'disabled' : ''}>
+              ${p.name} ${p.id === this.projectId ? '(projet actuel)' : ''}
+            </option>
+          `).join('')}
+        </select>
+      </div>
+      
+      <div style="
+        padding: var(--spacing-md);
+        background: var(--color-surface);
+        border-radius: var(--radius-md);
+        margin-top: var(--spacing-md);
+      ">
+        <p style="font-size: var(--font-size-sm); margin-bottom: var(--spacing-sm);">
+          <strong>Code NAF :</strong> ${nafCode.code}
+        </p>
+        <p style="font-size: var(--font-size-sm);">
+          <strong>Requête :</strong> ${nafCode.query}
+        </p>
+      </div>
+    `;
+
+    const modal = new Modal('Déplacer le code NAF', form, {
+      confirmText: 'Déplacer',
+      cancelText: 'Annuler',
+      onConfirm: async () => {
+        const formData = new FormData(form);
+        const targetProject = formData.get('target_project');
+
+        if (!targetProject) {
+          alert('Veuillez sélectionner un projet de destination');
+          return;
+        }
+
+        try {
+          await updateNAFCode(nafCode.id, {
+            project_id: targetProject
+          });
+          modal.close();
+          alert(`Code NAF déplacé vers ${config.projects.find(p => p.id === targetProject)?.name}`);
+          if (this.onUpdate) this.onUpdate();
+        } catch (error) {
+          alert('Erreur lors du déplacement');
           console.error(error);
         }
       }
