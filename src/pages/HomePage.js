@@ -117,16 +117,42 @@ export function HomePage() {
 /**
  * Rendu de la grille des projets
  */
-function renderProjectsGrid() {
+/**
+ * Rendu de la grille des projets
+ */
+async function renderProjectsGrid() {
   const grid = document.getElementById('projects-grid');
-  grid.innerHTML = '';
 
-  // Ajouter les cartes projets
-  config.projects.forEach((project, index) => {
-    const card = ProjectCard(project, (proj) => showDeleteConfirmModal(proj));
-    card.style.animationDelay = `${0.3 + index * 0.05}s`;
-    grid.appendChild(card);
-  });
+  // Afficher un loader si nécessaire ou juste vider
+  grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem;">Chargement des projets...</div>';
+
+  try {
+    const { getProjects } = await import('../database.js');
+    const projects = await getProjects();
+
+    // Fallback sur la config si DB vide (au cas où)
+    const allProjects = projects.length > 0 ? projects : config.projects;
+
+    // Mettre à jour la config locale pour que la recherche fonctionne aussi
+    config.projects = allProjects;
+
+    grid.innerHTML = '';
+
+    if (allProjects.length === 0) {
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center;">Aucun projet trouvé. Créez-en un !</div>';
+      return;
+    }
+
+    // Ajouter les cartes projets
+    allProjects.forEach((project, index) => {
+      const card = ProjectCard(project, (proj) => showDeleteConfirmModal(proj));
+      card.style.animationDelay = `${0.3 + index * 0.05}s`;
+      grid.appendChild(card);
+    });
+  } catch (error) {
+    console.error('Erreur chargement projets:', error);
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">Erreur lors du chargement des projets</div>';
+  }
 }
 
 /**
@@ -270,7 +296,7 @@ function showAddProjectModal() {
     if (e.target === modalOverlay) closeModal();
   });
 
-  document.getElementById('confirm-add-project').addEventListener('click', () => {
+  document.getElementById('confirm-add-project').addEventListener('click', async () => {
     const name = document.getElementById('new-project-name').value.trim();
     let id = document.getElementById('new-project-id').value.trim();
 
@@ -291,10 +317,21 @@ function showAddProjectModal() {
       return;
     }
 
-    config.projects.push({ id, name });
-    closeModal();
-    showNotification(`Projet "${name}" créé avec succès`, 'success');
-    renderProjectsGrid();
+    try {
+      // 1. Sauvegarder en base de données
+      const { createProject } = await import('../database.js');
+      await createProject({ id, name });
+
+      // 2. Mettre à jour l'état local
+      config.projects.push({ id, name });
+
+      closeModal();
+      showNotification(`Projet "${name}" créé avec succès`, 'success');
+      renderProjectsGrid();
+    } catch (error) {
+      console.error(error);
+      showNotification('Erreur lors de la création du projet en base de données', 'error');
+    }
   });
 }
 

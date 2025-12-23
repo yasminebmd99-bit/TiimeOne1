@@ -21,6 +21,71 @@ export function getSupabase() {
 // ==================== OPÉRATIONS CRUD ====================
 
 /**
+ * Récupère la liste des projets
+ */
+export async function getProjects() {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('name');
+
+    if (error) {
+        console.error('Erreur lors de la récupération des projets:', error);
+        return [];
+    }
+
+    return data || [];
+}
+
+/**
+ * Récupère un projet par son ID
+ * @param {string} id - ID du projet
+ */
+export async function getProjectById(id) {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) {
+        // Ignorer l'erreur si c'est juste que le projet n'existe pas (406 ou vide)
+        if (error.code !== 'PGRST116') {
+            console.error('Erreur lors de la récupération du projet:', error);
+        }
+        return null;
+    }
+
+    return data;
+}
+
+
+/**
+ * Crée un nouveau projet
+ * @param {Object} project - Objet projet { id, name }
+ */
+export async function createProject(project) {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('projects')
+        .insert([project])
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Erreur lors de la création du projet:', error);
+        throw error;
+    }
+
+    return data;
+}
+
+/**
  * Récupère les codes NAF d'un projet
  * @param {string} projectId - ID du projet
  */

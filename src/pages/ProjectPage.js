@@ -10,7 +10,29 @@ import { router } from '../router.js';
  */
 export async function ProjectPage(params) {
   const projectId = params.projectName;
-  const project = config.projects.find(p => p.id === projectId);
+  const { getProjectById, createProject } = await import('../database.js');
+  let project = await getProjectById(projectId);
+
+  // Fallback: Si pas en base mais dans config, on le crée en base maintenant (auto-fix)
+  if (!project) {
+    const configProject = config.projects.find(p => p.id === projectId);
+    if (configProject) {
+      try {
+        console.log(`Projet ${projectId} trouvé en config mais pas en DB. Création auto...`);
+        project = await createProject(configProject);
+      } catch (e) {
+        console.error("Impossible de créer le projet manquant en DB", e);
+      }
+    } else {
+      // Si vraiment pas trouvé, peut-être qu'on vient juste de le créer dans un autre onglet ? ou 404
+      // Essayons de l'afficher quand même avec juste l'ID pour ne pas bloquer
+      project = { id: projectId, name: projectId.charAt(0).toUpperCase() + projectId.slice(1) };
+      // Mais idéalement on devrait le créer pour éviter les erreurs de foreign key
+      try {
+        await createProject(project);
+      } catch (e) { }
+    }
+  }
 
   if (!project) {
     router.show404();
