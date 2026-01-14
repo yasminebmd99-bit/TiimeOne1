@@ -199,12 +199,10 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 var(--spacing-lg);
+  padding-bottom: var(--spacing-xl);
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  /* Hauteur fixe pour le 100vh */
-  overflow: hidden;
-  /* Empêche le scroll de la page entière */
+  min-height: 100vh;
 }
 
 /* ==================== TYPOGRAPHY ==================== */
@@ -423,10 +421,7 @@ body {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  margin-bottom: var(--spacing-sm);
-  min-height: 0;
-  /* Crucial pour le scroll flexbox */
+  margin-bottom: var(--spacing-lg);
 }
 
 .section-header-with-action {
